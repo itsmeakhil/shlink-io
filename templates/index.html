@@ -16,11 +16,6 @@
                     <img src="https://sjc.microlink.io/FRugVDifhgf4g-rhx5q_bn00M0HmQZwyPADMoNGGWJg_3jSpwex9cm6NNr7qXqMg7oSNvcqZd2mm1PGpxpvd6w.jpeg" alt="Shlink Logo" class="h-8 w-8">
                     <span class="ml-2 text-xl font-bold text-gray-900">Shlink</span>
                 </div>
-                <div class="hidden sm:flex space-x-8">
-                    <a href="#" class="text-gray-600 hover:text-blue-600">Features</a>
-                    <a href="#" class="text-gray-600 hover:text-blue-600">Apps</a>
-                    <a href="#" class="text-gray-600 hover:text-blue-600">Documentation</a>
-                </div>
             </div>
         </div>
     </nav>
@@ -30,10 +25,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
                 <h1 class="text-4xl font-bold text-gray-900 sm:text-5xl md:text-6xl mb-6">
-                    The definitive self-hosted<br>URL shortener
+                    Powerful URL shortener
                 </h1>
                 <p class="max-w-2xl mx-auto text-lg text-gray-600">
-                    Keep control over all your shortened URLs, by serving them under your own domains, using this simple yet powerful tool.
+                    Create short, memorable links for your long URLs using this simple yet powerful tool.
                 </p>
             </div>
 
@@ -91,22 +86,18 @@
                 </div>
 
                 <!-- Stats Section -->
-                <div class="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="mt-12 grid grid-cols-3 gap-4">
                     <div class="bg-white p-4 rounded-lg shadow text-center">
-                        <div class="text-2xl font-bold text-blue-600">20,075</div>
+                        <div id="totalVisits" class="text-2xl font-bold text-blue-600">-</div>
                         <div class="text-sm text-gray-600">Total Visits</div>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow text-center">
-                        <div class="text-2xl font-bold text-blue-600">61,443</div>
+                        <div id="orphanVisits" class="text-2xl font-bold text-blue-600">-</div>
                         <div class="text-sm text-gray-600">Orphan Visits</div>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow text-center">
-                        <div class="text-2xl font-bold text-blue-600">166</div>
+                        <div id="shortUrls" class="text-2xl font-bold text-blue-600">-</div>
                         <div class="text-sm text-gray-600">Short URLs</div>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow text-center">
-                        <div class="text-2xl font-bold text-blue-600">82</div>
-                        <div class="text-sm text-gray-600">Tags</div>
                     </div>
                 </div>
             </div>
@@ -141,6 +132,9 @@
                 shortUrlElement.textContent = data.short_url;
                 shortUrlElement.href = data.short_url;
                 resultContainer.classList.remove('hidden');
+
+                // Update stats after successful shortening
+                fetchStats();
             } catch (error) {
                 alert('Error: ' + error.message);
             }
@@ -160,6 +154,25 @@
                 alert('Failed to copy URL');
             }
         }
+
+        async function fetchStats() {
+            try {
+                const response = await fetch('/analytics/stats');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch stats');
+                }
+                const stats = await response.json();
+
+                document.getElementById('totalVisits').textContent = stats.totalVisits;
+                document.getElementById('orphanVisits').textContent = stats.orphanVisits;
+                document.getElementById('shortUrls').textContent = stats.shortUrls;
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            }
+        }
+
+        // Fetch stats on page load
+        fetchStats();
     </script>
 </body>
 </html>
