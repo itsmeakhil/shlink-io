@@ -30,3 +30,7 @@ async def get_long_url(short_id: str):
     """Retrieve the original URL for a given short ID."""
     data = db.short_urls.find_one({"short_id": short_id})
     return data["long_url"] if data else None
+
+
+async def get_stats():
+    return {"totalVisits":20789,"orphanVisits":2045,"shortUrls":db.short_urls.count_documents({})}
