@@ -16,7 +16,7 @@ class URLRequest(BaseModel):
 @router.post("/shorten")
 async def shorten_url(request: URLRequest):
     short_id = await create_short_url(request.long_url)
-    return {"short_url": f"http://localhost:8090/{short_id}"}
+    return {"short_url": f"https://shlink-neon.vercel.app/{short_id}"}
 
 
 # Route to redirect a short URL
