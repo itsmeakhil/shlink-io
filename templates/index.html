@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shlink - URL Shortener</title>
+    <title>Shlink - Fast & Simple URL Shortener</title>
+    <meta name="description" content="Shlink is a powerful URL shortener. Create short, custom links for your long URLs easily and track your link performance with detailed statistics.">
+    <meta name="keywords" content="URL shortener, link shortener, custom URLs, link tracking">
+    <meta name="author" content="Shlink">
+    <meta property="og:title" content="Shlink - Fast & Simple URL Shortener">
+    <meta property="og:description" content="Create short, custom links for your long URLs easily and track your link performance with detailed statistics.">
+    <meta property="og:image" content="https://sjc.microlink.io/FRugVDifhgf4g-rhx5q_bn00M0HmQZwyPADMoNGGWJg_3jSpwex9cm6NNr7qXqMg7oSNvcqZd2mm1PGpxpvd6w.jpeg">
+    <meta property="og:url" content="https://shlink.io">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" href="https://sjc.microlink.io/FRugVDifhgf4g-rhx5q_bn00M0HmQZwyPADMoNGGWJg_3jSpwex9cm6NNr7qXqMg7oSNvcqZd2mm1PGpxpvd6w.jpeg" type="image/jpeg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -25,10 +34,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
                 <h1 class="text-4xl font-bold text-gray-900 sm:text-5xl md:text-6xl mb-6">
-                    Powerful URL shortener
+                    Fast & Simple URL Shortener
                 </h1>
                 <p class="max-w-2xl mx-auto text-lg text-gray-600">
-                    Create short, memorable links for your long URLs using this simple yet powerful tool.
+                    Create short, memorable links for your long URLs using this powerful tool. Track your link performance with detailed statistics.
                 </p>
             </div>
 
@@ -39,11 +48,17 @@
                         <!-- Input Section -->
                         <div>
                             <label for="url" class="block text-sm font-medium text-gray-700 mb-2">Enter your URL</label>
+                            <input
+                                type="url"
+                                id="url"
+                                placeholder="https://your-long-url.com"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all mb-4"
+                            >
                             <div class="flex gap-3">
                                 <input
-                                    type="url"
-                                    id="url"
-                                    placeholder="https://your-long-url.com"
+                                    type="text"
+                                    id="alias"
+                                    placeholder="Custom alias (optional)"
                                     class="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                 >
                                 <button
@@ -82,6 +97,8 @@
                                 </div>
                             </div>
                         </div>
+                        <div id="errorMessage" class="hidden text-sm text-red-600">
+                        </div>
                     </div>
                 </div>
 
@@ -107,11 +124,13 @@
     <script>
         async function shortenUrl() {
             const longUrl = document.getElementById('url').value;
+            const alias = document.getElementById('alias').value;
             const resultContainer = document.getElementById('resultContainer');
             const shortUrlElement = document.getElementById('shortUrl');
+            const errorMessageElement = document.getElementById('errorMessage');
 
             if (!longUrl) {
-                alert('Please enter a valid URL');
+                showError('Please enter a valid URL');
                 return;
             }
 
@@ -121,23 +140,32 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ long_url: longUrl }),
+                    body: JSON.stringify({ long_url: longUrl, alias: alias }),
                 });
 
+                const data = await response.json();
+                console.log(data);
                 if (!response.ok) {
-                    throw new Error('Failed to shorten URL');
+                    throw new Error(data.detail || 'Failed to shorten URL');
                 }
 
-                const data = await response.json();
                 shortUrlElement.textContent = data.short_url;
                 shortUrlElement.href = data.short_url;
                 resultContainer.classList.remove('hidden');
+                errorMessageElement.classList.add('hidden');
 
                 // Update stats after successful shortening
                 fetchStats();
             } catch (error) {
-                alert('Error: ' + error.message);
+                showError(error.message);
             }
+        }
+
+        function showError(message) {
+            const errorMessageElement = document.getElementById('errorMessage');
+            errorMessageElement.textContent = message;
+            errorMessageElement.classList.remove('hidden');
+            document.getElementById('resultContainer').classList.add('hidden');
         }
 
         async function copyToClipboard() {
@@ -151,7 +179,7 @@
                     copyMessage.classList.add('hidden');
                 }, 2000);
             } catch (err) {
-                alert('Failed to copy URL');
+                showError('Failed to copy URL');
             }
         }
 
@@ -174,5 +202,6 @@
         // Fetch stats on page load
         fetchStats();
     </script>
+
 </body>
 </html>
